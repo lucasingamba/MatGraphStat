@@ -39,11 +39,13 @@ if strcmp(cv,'loo')    % get signal subgraph using training data, then classify 
     
     incorrects=nan(constants.s,len_constraints);
     for i=1:constants.s, 
+
+	    display(i)
         
         if mod(i,10)==0, disp(['loocv iter: ' num2str(i)]), end
         
         [Atrn Gtrn Atst] = xval_prep(As,constants,[],i);    % seperate data into training and testing sets
-        phat    = get_ind_edge_params(Atrn,Gtrn);           % get parameters
+        phat    = get_ind_edge_params(Atrn,Gtrn,'mle');           % get parameters
         
         if get_SigMat, SigMat = get_fisher(Atrn,Gtrn); end
         yi=ys(i);
@@ -51,10 +53,12 @@ if strcmp(cv,'loo')    % get signal subgraph using training data, then classify 
             
             if mod(j,100)==0, disp(['current constraint: ' num2str(constraints{j})]), end
            
-            subspace{i,j} = signal_subgraph_estimator(SigMat,constraints{j});
+		subspace{i,j} = signal_subgraph_estimator(Atrn, Gtrn,constraints{j});
+
             incorrects(i,j) = plugin_bern_classify(Atst,phat,subspace{i,j},yi);
         end
     end
+	display('done')
     
     
 elseif strcmp(cv,'InSample') % learn signal subgraph from full data

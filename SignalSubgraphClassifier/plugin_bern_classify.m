@@ -12,6 +12,7 @@ function [incorrect yhat] = plugin_bern_classify(datum,params,subspace,ytrue)
 %   incorrect:  whether 
 %   yhat:       list of estimated class identity for each graph
 
+datum = sparse(datum);						
 data_tmp=datum(subspace);
 
 post0=sum(data_tmp.*params.lnE0(subspace)+(1-data_tmp).*params.ln1E0(subspace))+params.lnprior0;

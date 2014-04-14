@@ -1,4 +1,4 @@
-function [SigSub wcounter] = signal_subgraph_estimator(SigMat,constraints,egg)
+function [SigSub wcounter] = signal_subgraph_estimator(SigMat, ys,constraints,egg)
 % estimates the signal subgraph from SigMat using the constraints
 %
 % INPUT:
@@ -11,9 +11,15 @@ function [SigSub wcounter] = signal_subgraph_estimator(SigMat,constraints,egg)
 %   wcounter:   necessary for plotting coherogram when using coherent (or egg) 
 
 
-if nargin==1, constraints=sqrt(numel(SigMat)); end
+
+
+%if nargin==1, constraints=sqrt(numel(SigMat)); end
+
+constraints = sqrt(numel(SigMat));
 
 num_constraints=length(constraints);
+
+					  display(num_constraints)
 if num_constraints==1                   % if using incoherent or naive bayes
     num_edges=constraints;
 elseif num_constraints==2               % if using coherent or egg
@@ -24,10 +30,10 @@ end
 if num_constraints==1                   % use incoherent or naive bayes
     
     if isnan(constraints)               % use naive bayes
-        SigSub=1:numel(SigMat);
+SigSub=fastTestOutputEdges(As, ys);
     else                                % use incoherent
-        [~, delind]=sort(SigMat(:),'ascend');
-        SigSub  = delind(1:num_edges);
+      %  [~, delind]=sort(SigMat(:),'ascend');
+        SigSub  = fastTestOuputEdges(SigMat, ys);
     end
     wcounter=[];
     
@@ -55,7 +61,7 @@ elseif num_constraints==2 && nargin<3   % use coherent
             blank(:,vstars(1:nstars))= SigMat(:,vstars(1:nstars));
             [~, indsp] = sort(blank(:));                                % sort the candidate edges
             
-            SigSub=indsp(1:num_edges);                                  % keep the num_edge most significant edges from the candidate set
+            SigSub=sparse(indsp(1:num_edges));                                  % keep the num_edge most significant edges from the candidate set
             wconv=1;                                                    % converge
         else                                        % if there are not enough significant edges
             wcounter=wcounter+1;                    % increment the threshold
@@ -68,6 +74,8 @@ elseif num_constraints==2 && nargin<3   % use coherent
     end % while we did not converge
     wcounter=wcounter-1;
     
+SigSub= sparse(SigSub);
+
 elseif nargin==3 && egg==1              % use egg (similar to coherent, perhaps comments to come)
     
     wset=unique(sort(SigMat(:)));

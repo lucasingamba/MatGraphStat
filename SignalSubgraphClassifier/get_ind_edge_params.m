@@ -14,16 +14,22 @@ eta = 1/(10*constants.s);             % to deal with 0's and 1's
 sum0 = sum(adjacency_matrices(:,:,constants.y0),3);
 sum1 = sum(adjacency_matrices(:,:,constants.y1),3);
 
+display(constants.y0)
+
 if strcmp(type,'L-estimator')
+    
+    display('in get_ind_edge_params L-estimator');
     % estimated class 0 edge probabilities
     P.E0            = sum0/constants.s0;
-    P.E0(P.E0==0)   = eta;
-    P.E0(P.E0==1)   = 1-eta;
+P.E0(length(find(P.E0))==0)   = eta;
+P.E0 = P.E0-eta/2; % have to somehow take some away from the one values 
     
+display('here');
+
     % estimated class 0 edge probabilities
     P.E1            = sum1/constants.s1;
-    P.E1(P.E1==0)   = eta;
-    P.E1(P.E1==1)   = 1-eta;
+P.E1(length(find(P.E1))==0)   = eta;
+P.E1 = P.E1-eta/2;
 
 elseif strcmp(type,'robust')
     P.E0=(sum0+eta)/(constants.s0+eta);
@@ -45,15 +51,19 @@ elseif strcmp(type,'map')
     P.E1     = (P.alpha1-1)./(P.alpha1+P.beta1-2);
     
 elseif strcmp(type,'mle')
-    P.E0 = sum0/constants.s0;
-    P.E1 = sum1/constants.s1;        
+P.E0 = sparse(sum0/constants.s0);
+P.E1 = sparse(sum1/constants.s1);        
 end
 
+display(constants.s0)
+
+display(class(P.E0))
+
 % pre-compute constants for bernoulli distribution
-P.lnE0  = log(P.E0);
-P.ln1E0 = log(1-P.E0);
-P.lnE1  = log(P.E1);
-P.ln1E1 = log(1-P.E1);
+P.lnE0  = (P.E0);
+P.ln1E0 = (1-P.E0);
+P.lnE1  = (P.E1);
+P.ln1E1 = (1-P.E1);
 
 % log-priors (using L-estimator)
 pi0=constants.s0/constants.s;

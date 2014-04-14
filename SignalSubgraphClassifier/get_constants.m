@@ -18,7 +18,11 @@ if numel(siz)==2, constants.s=1;
 else constants.s   = siz(3);         % # training samples
 end
 
-dummy=ones(n);
+%dummy=ones(n);
+
+loopy =0;
+directed = 1
+
 if nargin==4,
     if directed && loopy
         d=n^2;
